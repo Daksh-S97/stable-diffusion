@@ -14,7 +14,7 @@ def generate(prompt: str, neg_prompt: str, input_img=None, strength=0.8, do_cfg=
     neg_prompt: specify objects you don't want in the image; empty string for cfg
     cfg_scale: weight for cfg signal
     idle_device: offload the models which are not in use to this device
-    strength: how much attention is given to input image while generating output image; more strength matlab less dependent on input image
+    strength: how much noise is added; more noise matlab more freedom for the model to generate image/ less dependent on input_image
     """
     with torch.no_grad():
         if not (0 < strength <= 1):
@@ -40,7 +40,7 @@ def generate(prompt: str, neg_prompt: str, input_img=None, strength=0.8, do_cfg=
         cond_tokens = torch.tensor(cond_tokens, dtype=torch.long, device=device) # (b,s) = (b, 77)
         cond_ctxt = clip(cond_tokens) # (b, s, d) = (1, 77, 768)
 
-        uncond_tokens = tokenizer.batch_encode_plus([uncond_tokens], padding = "max_length", max_length = 77).input_ids
+        uncond_tokens = tokenizer.batch_encode_plus([neg_prompt], padding = "max_length", max_length = 77).input_ids
         uncond_tokens = torch.tensor(uncond_tokens, dtype=torch.long, device=device)
         uncond_ctxt = clip(uncond_tokens)
 
